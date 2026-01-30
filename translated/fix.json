@@ -1,0 +1,8 @@
+{
+  "slug": "fix",
+  "title_en": "What Languages Fix",
+  "title_zh": "编程语言各自解决什么问题",
+  "date": "",
+  "url": "https://paulgraham.com/fix.html",
+  "content_zh": "Kevin Kelleher 提出了一个有趣的比较编程语言的方式：用它解决的问题来描述每种语言。令人惊讶的是，有多少语言能这样描述，而且描述得多好。\n\nAlgol：汇编语言太底层了。\n\nPascal：Algol 的数据类型不够多。\n\nModula：Pascal 太弱，搞不了系统编程。\n\nSimula：Algol 做模拟不够好。\n\nSmalltalk：Simula 里不是所有东西都是对象。\n\nFortran：汇编语言太底层了。\n\nCobol：Fortran 太吓人。\n\nPL/1：Fortran 的数据类型不够多。\n\nAda：现有的每种语言都缺点什么。\n\nBasic：Fortran 太吓人。\n\nAPL：Fortran 操作数组不够好。\n\nJ：APL 需要它自己的字符集。\n\nC：汇编语言太底层了。\n\nC++：C 太底层了。\n\nJava：C++ 是一坨屎。而且微软要干掉我们。\n\nC#：Java 被 Sun 控制了。\n\nLisp：图灵机是描述计算的一种别扭方式。\n\nScheme：MacLisp 是一坨屎。\n\nT：Scheme 没有库。\n\nCommon Lisp：Lisp 的方言太多了。\n\nDylan：Scheme 没有库，而且 Lisp 语法太吓人。\n\nPerl：Shell 脚本/awk/sed 不够像编程语言。\n\nPython：Perl 是一坨屎。\n\nRuby：Perl 是一坨屎，而且 Lisp 语法太吓人。\n\nProlog：编程不够像逻辑。"
+}

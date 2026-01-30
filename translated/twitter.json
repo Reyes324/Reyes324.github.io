@@ -1,0 +1,8 @@
+{
+  "slug": "twitter",
+  "title_en": "Why Twitter is a Big Deal",
+  "title_zh": "为什么 Twitter 是件大事",
+  "date": "April 2009",
+  "url": "https://paulgraham.com/twitter.html",
+  "content_zh": "2009年4月\n\nOm Malik 是最近一个问"Twitter 为什么这么重要"的人，这样的人很多。\n\n原因是它是一种新的消息协议——一种不需要指定收件人的协议。\n\n新协议很罕见。更准确地说，能流行起来的新协议很罕见。常用的就那么几个：TCP/IP（互联网）、SMTP（电子邮件）、HTTP（万维网）等等。所以任何一个新协议都是大事。但 Twitter 是一个私人公司拥有的协议，这就更罕见了。\n\n有趣的是，Twitter 的创始人们迟迟没有急着变现，长远来看这可能反而是优势。因为他们没有过度控制它，Twitter 给人的感觉像以前那些公共协议一样。人们会忘记它其实属于一家私人公司。这肯定让 Twitter 更容易传播开来。"
+}
