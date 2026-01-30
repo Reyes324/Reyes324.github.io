@@ -1,0 +1,8 @@
+{
+  "slug": "rss",
+  "title_en": "RSS",
+  "title_zh": "RSS",
+  "date": null,
+  "url": "https://paulgraham.com/rss.html",
+  "content_zh": "Aaron Swartz 为文章页面制作了一个抓取生成的 feed 订阅源。"
+}

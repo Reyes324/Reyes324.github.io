@@ -1,0 +1,8 @@
+{
+  "slug": "lwba",
+  "title_en": "Lisp for Web-Based Applications",
+  "title_zh": "Lisp 与 Web 应用开发",
+  "date": "April 2001",
+  "url": "https://paulgraham.com/lwba.html",
+  "content_zh": "2001年4月\n\n《超越平庸》一文在 Slashdot 上发布后，一些读者希望我更详细地介绍我们在 Viaweb 使用 Lisp 所获得的具体技术优势。对此感兴趣的朋友，这里有一些我 2001 年 4 月在马萨诸塞州剑桥市 BBN 实验室演讲的摘录。\n\nBBN 演讲摘录 (ASCII)"
+}
