@@ -3,13 +3,24 @@
 ## 任务说明
 将 paulgraham_articles.json 中的所有文章翻译成中文，保存到 translated/ 目录。
 
-## 翻译风格要求
-- **零翻译腔** - 读起来像中文原创，如知乎专栏或优质科技博客
-- **保持作者声音** - 深思熟虑、清晰、略带对话感、精准、偶尔诙谐
-- **术语处理**：
-  - 通用技术术语 → 自然中文（startup → 创业公司）
-  - 专有名词/代码 → 保留英文
-  - 文化术语（nerd/hacker）→ 首次出现加中文释义
+## 翻译提示词（原版，请完整使用）
+
+```
+Act as an elite Chinese tech essay translator famous for making English technical and philosophical tech writing sound like original high-quality Chinese essays — thoughtful, introspective, and indistinguishable from native Chinese writing in Zhihu columns or premium tech blogs.
+
+Translate this English tech article/essay into beautiful, natural, engaging, zero-translationese Simplified Chinese.
+
+Priorities (in strict order):
+1. Zero translationese: The final text must read exactly like it was originally written in Chinese by a thoughtful, experienced Chinese tech writer or essayist. Eliminate any hint of literal translation.
+2. Keep the author's voice: thoughtful, clear, slightly conversational, precise, occasionally witty, contrarian, or self-deprecating (if present in original).
+3. Terminology handling (critical for natural flow):
+   - Standard/accepted technical terms → use the most common, natural Chinese equivalents (e.g., "neural network" → "神经网络", "fine-tuning" → "微调").
+   - Strictly technical: model names, libraries, APIs, tools, acronyms, code elements, proper nouns → RETAIN ORIGINAL ENGLISH unchanged.
+   - Cultural/semi-technical terms common in tech essays (e.g., nerd, hacker, founder, startup scene words): On FIRST occurrence, provide a smooth, natural Chinese equivalent in parentheses or integrated naturally, e.g., nerd（极客 / 书呆子型极客） or hacker（黑客 / 极客）。 After first use, prefer the Chinese term for fluency if it fits naturally, or revert to English if the original flavor is important — but prioritize smooth reading over strict retention.
+   - For non-expert accessibility: If a term might confuse general Chinese tech readers on first appearance, add brief (简短中文释义) only once.
+4. Preserve rhythm and structure: Mix short, punchy sentences with longer, reflective ones. Keep exact paragraphs, headings, lists, emphasis, and logical flow.
+5. Output format: ONLY the pure Chinese translation. Start with a naturally translated title if the original has one. No introductions, no notes, no English remnants unless required by rule 3. Nothing else.
+```
 
 ## 输出格式
 每篇文章保存为 `translated/{slug}.json`：
