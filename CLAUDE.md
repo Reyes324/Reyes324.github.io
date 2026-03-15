@@ -39,3 +39,30 @@ Priorities (in strict order):
 - 源数据: `paulgraham_articles.json`
 - 翻译输出: `translated/`
 - Git分支: `claude/scrape-paulgraham-articles-1sL9x`
+
+---
+
+# YouTube 逐字稿生成器项目
+
+## 当前状态
+代码已完成，需要在本地终端测试。
+
+## 文件说明
+- `youtube-transcript.html` — 前端页面（暗色主题，支持时间轴/纯文本/双栏对照三种视图）
+- `transcript_server.py` — Python Flask 后端，使用 `youtube-transcript-api` 提取字幕
+
+## 架构
+- **推荐方式**：本地 Python 服务器模式（`transcript_server.py` 在 localhost:5000）
+- **备选方式**：CORS 代理模式（纯前端，但可能被 YouTube 限制）
+- **翻译**：MyMemory 免费翻译 API（en→zh-CN），无需 API Key
+
+## 待办事项
+1. 安装依赖：`pip install youtube-transcript-api flask flask-cors`
+2. 启动服务器：`python3 transcript_server.py`
+3. 在浏览器打开 `youtube-transcript.html`，选择「本地服务器」模式
+4. 测试链接：`https://www.youtube.com/watch?v=NN788Os0RLE`
+5. 测试「翻译为中文」功能
+6. 如有问题，调试并修复
+
+## Git分支
+`claude/youtube-transcript-translator-SdyKj`
