@@ -554,7 +554,7 @@
             <span>提取方式：</span>
             <label><input type="radio" name="mode" value="proxy" checked /> 在线提取（推荐）</label>
             <label><input type="radio" name="mode" value="local" /> 本地服务器</label>
-            <span class="mode-hint" id="modeHint">通过代理直接提取，无需安装</span>
+            <span class="mode-hint" id="modeHint">自动检测最佳提取方式</span>
         </div>
 
         <div id="status" class="status"></div>
@@ -645,7 +645,7 @@
             const mode = getMode();
             hint.textContent = mode === 'local'
                 ? '需启动本地 Python 服务器'
-                : '通过代理直接提取，无需安装';
+                : '自动检测最佳提取方式';
         });
     });
 
@@ -807,8 +807,17 @@
         }));
     }
 
-    // ============ Method 2: CORS Proxy ============
+    // ============ Method 2: Online (API first, then CORS Proxy fallback) ============
     async function fetchViaProxy() {
+        // First try same-origin API (works when deployed on Vercel)
+        try {
+            showStatus('正在通过服务器 API 提取字幕...');
+            await fetchViaCloudServer();
+            return; // Success — no need for CORS proxy
+        } catch (e) {
+            console.warn('API not available, falling back to CORS proxy:', e.message);
+        }
+
         showStatus('正在通过 CORS 代理获取视频页面...');
 
         const pageHtml = await fetchWithProxy(`https://www.youtube.com/watch?v=${videoId}`);
@@ -882,8 +891,36 @@
             }
         } else {
             const track = captionTracks[idx];
-            if (!track || !track.baseUrl) return;
+            if (!track) return;
             showStatus('正在切换字幕语言...');
+
+            // Try API first (works on Vercel)
+            const langCode = track.code || track.languageCode;
+            try {
+                const cloudBase = getCloudServer();
+                const resp = await fetch(`${cloudBase}/api/transcript?video_id=${videoId}&lang=${langCode}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    transcriptData = (data.transcript || []).map(item => ({
+                        start: item.start || 0,
+                        dur: item.duration || 0,
+                        text: item.text || ''
+                    }));
+                    isTranslated = false;
+                    translatedData = [];
+                    renderTranscript();
+                    showStatus(`已切换为 ${track.name || langCode} 字幕`, 'success');
+                    return;
+                }
+            } catch (e) {
+                console.warn('API lang switch failed, trying CORS proxy:', e.message);
+            }
+
+            // Fallback to CORS proxy
+            if (!track.baseUrl) {
+                showStatus('切换失败：该语言无法通过代理获取', 'error');
+                return;
+            }
             try {
                 const captionXml = await fetchWithProxy(track.baseUrl);
                 transcriptData = parseCaptionXml(captionXml);
