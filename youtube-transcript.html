@@ -4,247 +4,539 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube 逐字稿生成器 & 中文翻译</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0e0d0b;
+            --surface: #161412;
+            --surface-raised: #1e1c18;
+            --surface-elevated: #28251f;
+            --border: #28251f;
+            --border-subtle: #1e1c18;
+
+            --accent: #d4a040;
+            --accent-hover: #e0b454;
+            --accent-dim: rgba(212, 160, 64, 0.12);
+
+            --text: #e8e0d0;
+            --text-secondary: #8a8278;
+            --text-dim: #504a42;
+
+            --timestamp: #7aa0c4;
+            --timestamp-hover: #94b8dc;
+
+            --success-bg: rgba(80, 176, 100, 0.08);
+            --success-text: #50b064;
+            --success-border: rgba(80, 176, 100, 0.18);
+
+            --error-bg: rgba(216, 80, 68, 0.08);
+            --error-text: #d85044;
+            --error-border: rgba(216, 80, 68, 0.18);
+
+            --info-bg: rgba(100, 148, 216, 0.08);
+            --info-text: #6494d8;
+            --info-border: rgba(100, 148, 216, 0.18);
+
+            --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
-            background: #0f0f0f;
-            color: #e8e8e8;
+            font-family: "Outfit", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
+
+        /* subtle grain texture */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.022;
+            pointer-events: none;
+            z-index: 10000;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 180px 180px;
+        }
+
         .container {
-            max-width: 960px;
+            max-width: 860px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 64px 28px 48px;
         }
+
+        /* ── Entrance animations ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ── Typography ── */
         h1 {
-            font-size: 28px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 8px;
-            color: #fff;
+            font-family: "Outfit", sans-serif;
+            font-size: clamp(34px, 5vw, 46px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 10px;
+            animation: fadeInUp 0.7s var(--ease-expo) both;
         }
         .subtitle {
-            text-align: center;
-            color: #aaa;
-            font-size: 14px;
-            margin-bottom: 36px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 400;
+            margin-bottom: 48px;
+            animation: fadeInUp 0.7s var(--ease-expo) 0.06s both;
         }
+
+        /* ── Input group (hero moment) ── */
         .input-group {
             display: flex;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 14px;
+            animation: fadeInUp 0.7s var(--ease-expo) 0.12s both;
         }
         .input-group input {
             flex: 1;
-            padding: 14px 18px;
-            border: 1px solid #333;
-            border-radius: 8px;
-            background: #1a1a1a;
-            color: #fff;
+            padding: 15px 20px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit;
             font-size: 15px;
+            font-weight: 400;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
         }
-        .input-group input:focus { border-color: #ff4444; }
-        .input-group input::placeholder { color: #666; }
-        .btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
+        .input-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
         }
-        .btn-primary { background: #ff4444; color: #fff; }
-        .btn-primary:hover { background: #e03333; }
-        .btn-primary:disabled { background: #552222; color: #888; cursor: not-allowed; }
-        .btn-secondary { background: #2a2a2a; color: #ccc; border: 1px solid #444; }
-        .btn-secondary:hover { background: #333; }
-        .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .input-group input::placeholder { color: var(--text-dim); }
 
+        /* ── Buttons ── */
+        .btn {
+            padding: 15px 26px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.25s var(--ease-out);
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(212, 160, 64, 0.2);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .btn-primary:disabled {
+            background: var(--surface-elevated);
+            color: var(--text-dim);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-secondary {
+            background: var(--surface-raised);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--surface-elevated);
+            color: var(--text);
+            border-color: var(--surface-elevated);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ── Mode bar ── */
         .mode-bar {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 14px;
+            margin-bottom: 28px;
             font-size: 13px;
-            color: #888;
+            color: var(--text-secondary);
+            animation: fadeInUp 0.7s var(--ease-expo) 0.18s both;
         }
-        .mode-bar label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-        .mode-bar input[type="radio"] { accent-color: #ff4444; }
+        .mode-bar label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .mode-bar label:hover { color: var(--text); }
+        .mode-bar input[type="radio"] {
+            accent-color: var(--accent);
+            width: 14px;
+            height: 14px;
+        }
         .mode-hint {
             font-size: 12px;
-            color: #666;
+            color: var(--text-dim);
             margin-left: auto;
+            font-style: italic;
         }
 
+        /* ── Status messages ── */
         .status {
             padding: 12px 16px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 20px;
             font-size: 14px;
+            font-weight: 500;
             display: none;
         }
-        .status.info { display: block; background: #1a2332; color: #5b9bd5; border: 1px solid #2a3a50; }
-        .status.error { display: block; background: #2d1a1a; color: #e85555; border: 1px solid #4a2a2a; }
-        .status.success { display: block; background: #1a2d1a; color: #55c855; border: 1px solid #2a4a2a; }
-
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            align-items: center;
+        .status.info {
+            display: block;
+            background: var(--info-bg);
+            color: var(--info-text);
+            border: 1px solid var(--info-border);
+            animation: fadeIn 0.3s var(--ease-out);
         }
-        .toolbar .spacer { flex: 1; }
-
-        .transcript-container { display: none; margin-top: 20px; }
-        .transcript-container.visible { display: block; }
-
-        .view-toggle {
-            display: flex;
-            background: #1a1a1a;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #333;
+        .status.error {
+            display: block;
+            background: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+            animation: fadeIn 0.3s var(--ease-out);
         }
-        .view-toggle button {
-            padding: 8px 16px;
-            border: none;
-            background: transparent;
-            color: #888;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        .view-toggle button.active { background: #333; color: #fff; }
-
-        .transcript-box {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            max-height: 600px;
-            overflow-y: auto;
-            line-height: 1.8;
-            font-size: 15px;
-        }
-        .transcript-box::-webkit-scrollbar { width: 6px; }
-        .transcript-box::-webkit-scrollbar-track { background: #1a1a1a; }
-        .transcript-box::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-
-        .transcript-line {
-            display: flex;
-            gap: 16px;
-            padding: 6px 0;
-            border-bottom: 1px solid #222;
-        }
-        .transcript-line:last-child { border-bottom: none; }
-        .timestamp {
-            color: #5b9bd5;
-            font-size: 13px;
-            font-family: monospace;
-            min-width: 70px;
-            cursor: pointer;
-            flex-shrink: 0;
-            padding-top: 2px;
-        }
-        .timestamp:hover { color: #88c0f0; text-decoration: underline; }
-        .line-text { flex: 1; }
-        .line-text .original { color: #e8e8e8; }
-        .line-text .translated { color: #aaa; font-size: 14px; margin-top: 4px; }
-
-        .plain-text { white-space: pre-wrap; }
-
-        .columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .columns .col-header {
-            font-size: 13px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            font-weight: 600;
+        .status.success {
+            display: block;
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+            animation: fadeIn 0.3s var(--ease-out);
         }
 
+        /* ── Loading spinner ── */
         .loading-spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #555;
-            border-top-color: #ff4444;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
             margin-right: 8px;
             vertical-align: middle;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ── Video info ── */
         .video-info {
             display: none;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             padding: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
-        .video-info.visible { display: flex; gap: 16px; align-items: center; }
-        .video-info img { width: 160px; border-radius: 6px; }
+        .video-info.visible {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            animation: fadeInUp 0.5s var(--ease-expo);
+        }
+        .video-info img {
+            width: 152px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
         .video-info .info { flex: 1; }
-        .video-info .info h3 { font-size: 16px; margin-bottom: 4px; }
-        .video-info .info p { color: #888; font-size: 13px; }
+        .video-info .info h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .video-info .info p {
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+
+        /* ── Transcript container ── */
+        .transcript-container { display: none; margin-top: 24px; }
+        .transcript-container.visible {
+            display: block;
+            animation: fadeInUp 0.6s var(--ease-expo);
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .toolbar .spacer { flex: 1; }
+
+        .view-toggle {
+            display: flex;
+            background: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            padding: 2px;
+        }
+        .view-toggle button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.25s var(--ease-out);
+        }
+        .view-toggle button:hover {
+            color: var(--text-secondary);
+        }
+        .view-toggle button.active {
+            background: var(--surface-elevated);
+            color: var(--text);
+        }
 
         .lang-select {
-            padding: 8px 12px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #ccc;
+            padding: 7px 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-family: inherit;
             font-size: 13px;
             outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .lang-select:hover { border-color: var(--surface-elevated); }
+        .lang-select:focus { border-color: var(--accent); }
+
+        /* ── Transcript box ── */
+        .transcript-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            max-height: 620px;
+            overflow-y: auto;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+        .transcript-box::-webkit-scrollbar { width: 5px; }
+        .transcript-box::-webkit-scrollbar-track { background: transparent; }
+        .transcript-box::-webkit-scrollbar-thumb {
+            background: var(--surface-elevated);
+            border-radius: 4px;
+        }
+        .transcript-box::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dim);
         }
 
-        .help-box {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 40px;
-            font-size: 14px;
-            line-height: 1.8;
-            color: #aaa;
+        /* ── Transcript lines ── */
+        .transcript-line {
+            display: flex;
+            gap: 18px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.15s;
         }
-        .help-box h3 { color: #fff; margin-bottom: 12px; font-size: 16px; }
-        .help-box code {
-            background: #2a2a2a;
-            padding: 2px 6px;
-            border-radius: 4px;
+        .transcript-line:last-child { border-bottom: none; }
+        .transcript-line:hover {
+            background: rgba(212, 160, 64, 0.03);
+            margin: 0 -8px;
+            padding-left: 8px;
+            padding-right: 8px;
+            border-radius: 6px;
+        }
+        .timestamp {
+            color: var(--timestamp);
+            font-family: "Space Mono", monospace;
+            font-size: 12px;
+            min-width: 62px;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding-top: 4px;
+            transition: color 0.15s;
+        }
+        .timestamp:hover {
+            color: var(--timestamp-hover);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .line-text { flex: 1; }
+        .line-text .original {
+            color: var(--text);
+            font-weight: 400;
+        }
+        .line-text .translated {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+            padding-left: 12px;
+            border-left: 2px solid var(--border);
+        }
+
+        .plain-text {
+            white-space: pre-wrap;
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+        .columns .col-header {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        /* ── Article / Reading view ── */
+        .article-view {
+            font-size: 16px;
+            line-height: 2;
+        }
+        .article-paragraph {
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+        .article-paragraph:last-child { margin-bottom: 0; }
+        .article-paragraph .para-time {
+            display: inline-block;
+            color: var(--timestamp);
+            font-family: "Space Mono", monospace;
+            font-size: 11px;
+            margin-right: 8px;
+            opacity: 0.6;
+            cursor: pointer;
+            vertical-align: baseline;
+        }
+        .article-paragraph .para-time:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        .article-paragraph .para-translated {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-top: 6px;
+            padding-left: 14px;
+            border-left: 2px solid var(--border);
+        }
+        .article-speaker {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        /* ── Help section ── */
+        .help-box {
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
             font-size: 13px;
-            color: #e8e8e8;
+            line-height: 1.9;
+            color: var(--text-dim);
+            animation: fadeIn 0.8s var(--ease-out) 0.4s both;
+        }
+        .help-box h3 {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+        }
+        .help-box p strong {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .help-box code {
+            background: var(--surface-raised);
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: "Space Mono", monospace;
         }
         .help-box pre {
-            background: #2a2a2a;
-            padding: 12px;
-            border-radius: 6px;
+            background: var(--surface);
+            padding: 12px 16px;
+            border-radius: 8px;
             overflow-x: auto;
             margin: 8px 0;
-            font-size: 13px;
-            color: #e8e8e8;
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: "Space Mono", monospace;
+            border: 1px solid var(--border);
         }
         .help-box ol, .help-box ul { padding-left: 20px; }
-        .help-box li { margin: 4px 0; }
+        .help-box li { margin: 3px 0; }
 
+        /* ── Responsive ── */
         @media (max-width: 640px) {
+            .container { padding: 40px 18px 32px; }
             .input-group { flex-direction: column; }
             .columns { grid-template-columns: 1fr; }
             .toolbar { gap: 6px; }
-            .mode-bar { flex-direction: column; align-items: flex-start; }
+            .mode-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .mode-hint { margin-left: 0; }
+            .transcript-box { padding: 16px; }
+            .transcript-line { gap: 12px; }
+        }
+
+        /* ── Focus ring (accessibility) ── */
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+        input:focus-visible, button:focus-visible, select:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* ── Selection ── */
+        ::selection {
+            background: rgba(212, 160, 64, 0.25);
+            color: var(--text);
         }
     </style>
 </head>
@@ -260,9 +552,9 @@
 
         <div class="mode-bar">
             <span>提取方式：</span>
-            <label><input type="radio" name="mode" value="local" checked /> 本地服务器（推荐）</label>
-            <label><input type="radio" name="mode" value="proxy" /> CORS 代理（免部署）</label>
-            <span class="mode-hint" id="modeHint">需启动本地 Python 服务器</span>
+            <label><input type="radio" name="mode" value="proxy" checked /> 在线提取（推荐）</label>
+            <label><input type="radio" name="mode" value="local" /> 本地服务器</label>
+            <span class="mode-hint" id="modeHint">通过代理直接提取，无需安装</span>
         </div>
 
         <div id="status" class="status"></div>
@@ -281,6 +573,7 @@
                     <button class="active" onclick="switchView('timeline')">时间轴</button>
                     <button onclick="switchView('plain')">纯文本</button>
                     <button onclick="switchView('columns')">双栏对照</button>
+                    <button onclick="switchView('article')">阅读模式</button>
                 </div>
                 <div class="spacer"></div>
                 <select id="captionLangSelect" class="lang-select" onchange="handleCaptionLangChange()" style="display:none">
@@ -294,19 +587,24 @@
 
         <div class="help-box">
             <h3>使用说明</h3>
-            <p><strong>方式一：本地服务器（推荐，最可靠）</strong></p>
+            <p><strong>方式一：在线提取（推荐，最简单）</strong></p>
+            <ul>
+                <li>默认选中，直接粘贴链接即可使用</li>
+                <li>通过 CORS 代理提取 YouTube 字幕，无需安装</li>
+                <li>注意：部分视频可能受 YouTube 限制影响</li>
+            </ul>
+            <br/>
+            <p><strong>方式二：本地服务器（最可靠）</strong></p>
             <ol>
-                <li>安装依赖：<code>pip install youtube-transcript-api flask flask-cors</code></li>
+                <li>安装依赖：<code>pip install yt-dlp flask flask-cors</code></li>
                 <li>启动服务器：<code>python3 transcript_server.py</code></li>
-                <li>打开本页面，选择「本地服务器」模式</li>
-                <li>粘贴 YouTube 链接，点击「提取字幕」</li>
+                <li>选择「本地服务器」模式，粘贴链接提取</li>
             </ol>
             <br/>
-            <p><strong>方式二：CORS 代理（免部署）</strong></p>
+            <p><strong>阅读模式</strong></p>
             <ul>
-                <li>选择「CORS 代理」模式，直接使用</li>
-                <li>通过第三方代理获取 YouTube 页面数据</li>
-                <li>注意：可能受 YouTube 反爬限制影响</li>
+                <li>将碎片字幕按时间间隔合并为段落，方便阅读</li>
+                <li>自动检测说话人标注，格式化为对话样式</li>
             </ul>
             <br/>
             <p><strong>翻译功能</strong></p>
@@ -327,15 +625,27 @@
     let videoId = '';
     let captionTracks = [];
 
-    const LOCAL_SERVER = 'http://localhost:5000';
+    const LOCAL_SERVER = 'http://localhost:5001';
+
+    // Cloud server: use same origin when deployed, or detect Vercel URL
+    function getCloudServer() {
+        const loc = window.location;
+        if (loc.protocol === 'file:') {
+            // Running locally as a file — user needs to set their Vercel URL
+            return 'https://reyes324-github-io.vercel.app';
+        }
+        // When served from Vercel or any http server, use same origin
+        return loc.origin;
+    }
 
     // ============ Mode Selection ============
     document.querySelectorAll('input[name="mode"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const hint = document.getElementById('modeHint');
-            hint.textContent = getMode() === 'local'
+            const mode = getMode();
+            hint.textContent = mode === 'local'
                 ? '需启动本地 Python 服务器'
-                : '通过第三方 CORS 代理';
+                : '通过代理直接提取，无需安装';
         });
     });
 
@@ -360,6 +670,7 @@
     const PROXIES = [
         url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
         url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     ];
 
     async function fetchWithProxy(url, proxyIndex = 0) {
@@ -431,6 +742,37 @@
             btn.disabled = false;
             btn.textContent = '提取字幕';
         }
+    }
+
+    // ============ Method 0: Cloud Server (Vercel) ============
+    async function fetchViaCloudServer() {
+        showStatus('正在通过云服务器提取字幕...');
+        const cloudBase = getCloudServer();
+
+        let resp;
+        try {
+            resp = await fetch(`${cloudBase}/api/transcript?video_id=${videoId}`);
+        } catch (e) {
+            throw new Error('无法连接云服务器，请稍后重试或切换到其他模式');
+        }
+
+        if (!resp.ok) {
+            const errData = await resp.json().catch(() => ({}));
+            throw new Error(errData.error || `云服务器返回 HTTP ${resp.status}`);
+        }
+
+        const data = await resp.json();
+
+        if (data.languages && data.languages.length > 0) {
+            captionTracks = data.languages;
+            populateCaptionLangSelect(data.languages);
+        }
+
+        transcriptData = (data.transcript || []).map(item => ({
+            start: item.start || 0,
+            dur: item.duration || 0,
+            text: item.text || ''
+        }));
     }
 
     // ============ Method 1: Local Python Server ============
@@ -624,10 +966,12 @@
                     </div>
                     <div>
                         <div class="col-header">中文翻译</div>
-                        <div class="plain-text">${escapeHtml(transText) || '<span style="color:#666">点击"翻译为中文"按钮</span>'}</div>
+                        <div class="plain-text">${escapeHtml(transText) || '<span style="color:var(--text-dim)">点击"翻译为中文"按钮</span>'}</div>
                     </div>
                 </div>
             `;
+        } else if (currentView === 'article') {
+            renderArticleView(box, data);
         }
     }
 
@@ -637,13 +981,94 @@
         return div.innerHTML;
     }
 
+    // ============ Article View (Reading Mode) ============
+    function renderArticleView(box, data) {
+        // Merge subtitle fragments into paragraphs based on time gaps
+        const GAP_THRESHOLD = 2.0; // seconds — gap > this starts a new paragraph
+        const paragraphs = [];
+        let current = { items: [], startTime: 0 };
+
+        // Speaker detection patterns
+        const speakerPatterns = [
+            /^\[([^\]]+)\]\s*/,       // [Speaker Name]
+            /^>>+\s*([^:]+):\s*/,     // >> Speaker:
+            /^>>+\s*/,                // >> (no name)
+            /^([A-Z][A-Za-z\s]+):\s/, // SPEAKER NAME: or Speaker Name:
+        ];
+
+        function detectSpeaker(text) {
+            for (const pattern of speakerPatterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    const speaker = match[1] ? match[1].trim() : null;
+                    const rest = text.replace(pattern, '').trim();
+                    return { speaker, rest };
+                }
+            }
+            return null;
+        }
+
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            const prevEnd = i > 0 ? (data[i - 1].start + (data[i - 1].dur || 0)) : 0;
+            const gap = item.start - prevEnd;
+
+            // Check if this line has a speaker change
+            const speakerInfo = detectSpeaker(item.text);
+
+            if (i === 0) {
+                current = { items: [item], startTime: item.start, speaker: speakerInfo?.speaker || null };
+                if (speakerInfo) item._cleanText = speakerInfo.rest;
+            } else if (gap > GAP_THRESHOLD || speakerInfo) {
+                // Finish current paragraph
+                if (current.items.length > 0) paragraphs.push({ ...current });
+                current = { items: [item], startTime: item.start, speaker: speakerInfo?.speaker || null };
+                if (speakerInfo) item._cleanText = speakerInfo.rest;
+            } else {
+                current.items.push(item);
+                if (speakerInfo) {
+                    item._cleanText = speakerInfo.rest;
+                    if (!current.speaker && speakerInfo.speaker) current.speaker = speakerInfo.speaker;
+                }
+            }
+        }
+        if (current.items.length > 0) paragraphs.push({ ...current });
+
+        // Render paragraphs
+        let html = '<div class="article-view">';
+        for (const para of paragraphs) {
+            html += '<div class="article-paragraph">';
+
+            if (para.speaker) {
+                html += `<div class="article-speaker">${escapeHtml(para.speaker)}</div>`;
+            }
+
+            html += `<span class="para-time" onclick="window.open('https://youtube.com/watch?v=${videoId}&t=${Math.floor(para.startTime)}','_blank')">${formatTime(para.startTime)}</span>`;
+
+            const texts = para.items.map(it => it._cleanText !== undefined ? it._cleanText : it.text);
+            html += escapeHtml(texts.join(' '));
+
+            // Show translated text if available
+            const translations = para.items.map(it => it.translated || '').filter(Boolean);
+            if (translations.length > 0) {
+                html += `<span class="para-translated">${escapeHtml(translations.join(' '))}</span>`;
+            }
+
+            html += '</div>';
+        }
+        html += '</div>';
+        box.innerHTML = html;
+    }
+
     // ============ View Switch ============
     function switchView(view) {
         currentView = view;
+        const viewLabels = {
+            'timeline': '时间轴', 'plain': '纯文本',
+            'columns': '双栏对照', 'article': '阅读模式'
+        };
         document.querySelectorAll('.view-toggle button').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent === {
-                'timeline': '时间轴', 'plain': '纯文本', 'columns': '双栏对照'
-            }[view]);
+            btn.classList.toggle('active', btn.textContent === viewLabels[view]);
         });
         renderTranscript();
     }
